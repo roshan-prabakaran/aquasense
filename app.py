@@ -3,7 +3,7 @@ import random
 import time
 from datetime import datetime, timedelta
 import json
-
+import os
 app = Flask(__name__)
 
 # Simulated sensor data and system state
@@ -173,5 +173,5 @@ def cancel_dispensing():
     aquasense.pending_dispensing = None
     return jsonify({'status': 'success', 'message': 'Dispensing request cancelled'})
 
-if __name__ == '__main__':
-    app.run(debug=True, host='0.0.0.0', port=5000)
+if __name__ == "__main__":
+    app.run(host='0.0.0.0', port=5000, debug=True)
