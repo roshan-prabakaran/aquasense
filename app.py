@@ -173,5 +173,9 @@ def cancel_dispensing():
     aquasense.pending_dispensing = None
     return jsonify({'status': 'success', 'message': 'Dispensing request cancelled'})
 
-if __name__ == "__main__":
-    app.run(host='0.0.0.0', port=5000, debug=True)
+import os
+
+if __name__ == '__main__':
+    port = int(os.environ.get('PORT', 5000))  # fallback to 5000 locally
+    app.run(host='0.0.0.0', port=port)
+
