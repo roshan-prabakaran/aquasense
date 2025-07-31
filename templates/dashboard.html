@@ -1,0 +1,265 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AquaSense Guardian - Smart Fish Pond Monitor</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+</head>
+<body>
+    <div class="container">
+        <!-- Header -->
+        <header class="header">
+            <div class="header-content">
+                <div class="logo">
+                    <i class="fas fa-fish"></i>
+                    <h1>AquaSense Guardian</h1>
+                </div>
+                <div class="status-indicator">
+                    <div class="status-dot active" id="systemStatus"></div>
+                    <span>System Active</span>
+                </div>
+            </div>
+        </header>
+
+        <!-- Alert Banner -->
+        <div class="alert-banner" id="alertBanner" style="display: none;">
+            <div class="alert-content">
+                <i class="fas fa-exclamation-triangle"></i>
+                <div class="alert-text">
+                    <strong id="alertTitle">Critical Alert</strong>
+                    <p id="alertMessage">Low oxygen levels detected</p>
+                </div>
+                <button class="alert-close" onclick="closeAlert()">
+                    <i class="fas fa-times"></i>
+                </button>
+            </div>
+        </div>
+
+        <!-- Main Dashboard -->
+        <div class="dashboard">
+            <!-- Water Parameters -->
+            <div class="card">
+                <div class="card-header">
+                    <h2><i class="fas fa-tint"></i> Water Parameters</h2>
+                    <span class="last-updated" id="lastUpdated">Last updated: --:--:--</span>
+                </div>
+                <div class="parameters-grid">
+                    <div class="parameter-card ph">
+                        <div class="parameter-icon">
+                            <i class="fas fa-flask"></i>
+                        </div>
+                        <div class="parameter-info">
+                            <h3>pH Level</h3>
+                            <div class="parameter-value" id="phValue">7.2</div>
+                            <div class="parameter-range">Optimal: 6.5-8.0</div>
+                        </div>
+                        <div class="parameter-status" id="phStatus">
+                            <i class="fas fa-check-circle"></i>
+                        </div>
+                    </div>
+
+                    <div class="parameter-card oxygen">
+                        <div class="parameter-icon">
+                            <i class="fas fa-wind"></i>
+                        </div>
+                        <div class="parameter-info">
+                            <h3>Dissolved Oxygen</h3>
+                            <div class="parameter-value" id="oxygenValue">6.5 <span>mg/L</span></div>
+                            <div class="parameter-range">Optimal: >5.0 mg/L</div>
+                        </div>
+                        <div class="parameter-status" id="oxygenStatus">
+                            <i class="fas fa-check-circle"></i>
+                        </div>
+                    </div>
+
+                    <div class="parameter-card ammonia">
+                        <div class="parameter-icon">
+                            <i class="fas fa-exclamation-triangle"></i>
+                        </div>
+                        <div class="parameter-info">
+                            <h3>Ammonia</h3>
+                            <div class="parameter-value" id="ammoniaValue">0.3 <span>mg/L</span></div>
+                            <div class="parameter-range">Safe: <0.5 mg/L</div>
+                        </div>
+                        <div class="parameter-status" id="ammoniaStatus">
+                            <i class="fas fa-check-circle"></i>
+                        </div>
+                    </div>
+
+                    <div class="parameter-card temperature">
+                        <div class="parameter-icon">
+                            <i class="fas fa-thermometer-half"></i>
+                        </div>
+                        <div class="parameter-info">
+                            <h3>Temperature</h3>
+                            <div class="parameter-value" id="temperatureValue">24.5 <span>°C</span></div>
+                            <div class="parameter-range">Optimal: 22-28°C</div>
+                        </div>
+                        <div class="parameter-status" id="temperatureStatus">
+                            <i class="fas fa-check-circle"></i>
+                        </div>
+                    </div>
+
+                    <div class="parameter-card minerals">
+                        <div class="parameter-icon">
+                            <i class="fas fa-gem"></i>
+                        </div>
+                        <div class="parameter-info">
+                            <h3>Mineral Content</h3>
+                            <div class="parameter-value" id="mineralValue">85 <span>%</span></div>
+                            <div class="parameter-range">Good: 70-95%</div>
+                        </div>
+                        <div class="parameter-status" id="mineralStatus">
+                            <i class="fas fa-check-circle"></i>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Mineral Cartridges -->
+            <div class="card">
+                <div class="card-header">
+                    <h2><i class="fas fa-prescription-bottle"></i> Mineral Cartridges</h2>
+                </div>
+                <div class="cartridges-grid">
+                    <div class="cartridge-card">
+                        <div class="cartridge-header">
+                            <i class="fas fa-mountain"></i>
+                            <h3>Lime</h3>
+                        </div>
+                        <div class="cartridge-level">
+                            <div class="level-bar">
+                                <div class="level-fill" id="limeLevel" style="width: 85%"></div>
+                            </div>
+                            <span id="limeLevelText">85%</span>
+                        </div>
+                        <button class="dispense-btn" onclick="requestDispensing('lime', 'Manual pH adjustment')">
+                            <i class="fas fa-plus"></i> Dispense
+                        </button>
+                    </div>
+
+                    <div class="cartridge-card">
+                        <div class="cartridge-header">
+                            <i class="fas fa-pills"></i>
+                            <h3>Oxygen Tablets</h3>
+                        </div>
+                        <div class="cartridge-level">
+                            <div class="level-bar">
+                                <div class="level-fill" id="oxygenTabletsLevel" style="width: 72%"></div>
+                            </div>
+                            <span id="oxygenTabletsLevelText">72%</span>
+                        </div>
+                        <button class="dispense-btn" onclick="requestDispensing('oxygen_tablets', 'Manual oxygen boost')">
+                            <i class="fas fa-plus"></i> Dispense
+                        </button>
+                    </div>
+
+                    <div class="cartridge-card">
+                        <div class="cartridge-header">
+                            <i class="fas fa-balance-scale"></i>
+                            <h3>pH Buffer</h3>
+                        </div>
+                        <div class="cartridge-level">
+                            <div class="level-bar">
+                                <div class="level-fill" id="phBufferLevel" style="width: 91%"></div>
+                            </div>
+                            <span id="phBufferLevelText">91%</span>
+                        </div>
+                        <button class="dispense-btn" onclick="requestDispensing('ph_buffer', 'Manual pH stabilization')">
+                            <i class="fas fa-plus"></i> Dispense
+                        </button>
+                    </div>
+
+                    <div class="cartridge-card">
+                        <div class="cartridge-header">
+                            <i class="fas fa-shield-alt"></i>
+                            <h3>Ammonia Neutralizer</h3>
+                        </div>
+                        <div class="cartridge-level">
+                            <div class="level-bar">
+                                <div class="level-fill" id="ammoniaNeutralizerLevel" style="width: 68%"></div>
+                            </div>
+                            <span id="ammoniaNeutralizerLevelText">68%</span>
+                        </div>
+                        <button class="dispense-btn" onclick="requestDispensing('ammonia_neutralizer', 'Manual ammonia treatment')">
+                            <i class="fas fa-plus"></i> Dispense
+                        </button>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Recent Alerts -->
+            <div class="card">
+                <div class="card-header">
+                    <h2><i class="fas fa-bell"></i> Recent Alerts</h2>
+                </div>
+                <div class="alerts-list" id="alertsList">
+                    <div class="no-alerts">
+                        <i class="fas fa-check-circle"></i>
+                        <p>No recent alerts. System running normally.</p>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Historical Chart -->
+            <div class="card">
+                <div class="card-header">
+                    <h2><i class="fas fa-chart-line"></i> 24-Hour Trends</h2>
+                </div>
+                <div class="chart-container">
+                    <canvas id="trendsChart"></canvas>
+                </div>
+            </div>
+        </div>
+
+        <!-- Dispensing Modal -->
+        <div class="modal" id="dispensingModal">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h2><i class="fas fa-exclamation-circle"></i> Mineral Dispensing Request</h2>
+                </div>
+                <div class="modal-body">
+                    <div class="dispensing-info">
+                        <div class="info-row">
+                            <strong>Mineral:</strong>
+                            <span id="dispensingMineral">Lime</span>
+                        </div>
+                        <div class="info-row">
+                            <strong>Reason:</strong>
+                            <span id="dispensingReason">pH too low</span>
+                        </div>
+                        <div class="info-row">
+                            <strong>Amount:</strong>
+                            <span>50ml</span>
+                        </div>
+                        <div class="info-row">
+                            <strong>Time:</strong>
+                            <span id="dispensingTime">--:--:--</span>
+                        </div>
+                    </div>
+                    <div class="warning-message">
+                        <i class="fas fa-info-circle"></i>
+                        <p>Please confirm that you want to dispense this mineral into the pond. This action cannot be undone.</p>
+                    </div>
+                </div>
+                <div class="modal-actions">
+                    <button class="btn-cancel" onclick="cancelDispensing()">
+                        <i class="fas fa-times"></i> Cancel
+                    </button>
+                    <button class="btn-approve" onclick="approveDispensing()">
+                        <i class="fas fa-check"></i> Approve & Dispense
+                    </button>
+                </div>
+            </div>
+        </div>
+
+        <!-- Overlay -->
+        <div class="overlay" id="overlay"></div>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script src="{{ url_for('static', filename='script.js') }}"></script>
+</body>
+</html>
